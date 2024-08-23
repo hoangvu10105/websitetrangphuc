@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Trang thanh toán</title>
+	<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+	<link rel="stylesheet" href="./css/stylecard.css">
+</head>
+<body>
+    <!-- thanh dieu huong -->
+    <header>
+        <div class="tdn container">
+            <!-- logo -->
+           
+            <a href="index.html" class="logo"> Thuê Ngay</a>
+                 <!-- menu icon -->
+                 <input type="checkbox" name="" id="menu"> 
+                 <label for="menu"><i class='bx bx-menu' id="menu-icon"></i></label>
+                 <!-- tdh list -->
+                 <ul class="tdhlish">
+					<li><a href="index2.html">Trang chủ</a></li>
+                    <li><a href="#specs">Mô tả</a></li>
+                    <li><a href="#shop">Sản phẩm</a></li>
+                    <li><a href="#buds">Danh mục</a></li>
+                 </ul>
+                 <!-- login -->
+                 <a href="login.html" class="btn">Đăng nhập </a>
+             </div>
+         </header>
+	<div class="header1">
+		<h1>Trang thanh toán</h1>
+    </div>
+	<div class="container">
+		<div class="product">
+			<img src="./img/anh/a1 (78).jpg" alt="Sản phẩm 1">
+			<h4>Váy Dạ hội</h4>
+			<p>Giá: 50.000 đồng</p>
+			<button onclick="addToCart('Váy Dạ hội', 50000)">Thanh toán</button>
+		</div>
+		<div class="product">
+			<img src="./img/anh/anh2.jpg" alt="Comle nam" style="height: 310px;">
+			<h3>Comle nam</h3>
+			<p>Giá: 60.000 đồng</p>
+			<button onclick="addToCart('Comle nam', 60000)">Thanh toán</button>
+		</div>
+		<div class="product">
+			<img src="./img/anh/a1 (84).jpg" alt="Váy dự tiệc" style="height: 310px;" >
+			<h3>Váy dự tiệc</h3>
+			<p>Giá: 100.000 đồng</p>
+			<button onclick="addToCart('Váy dự tiệc', 100000)">Thanh toán</button>
+		</div>
+		<div class="cart" id="cart">
+			<h2>Giỏ hàng của bạn</h2>
+			<table>
+				<thead>
+					<tr>
+						<th>Sản phẩm</th>
+						<th>Giá </th>
+						<th>Số lượng</th>
+						<th>Tổng cộng</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody id="cart-items">
+				</tbody>
+			</table>
+			<form>
+				<label for="voucher">Mã giảm giá:</label>
+				<input type="text" id="voucher" name="voucher">
+				<button type="button" onclick="applyVoucher()">Áp dụng</button>
+			</form>
+			<div class="total" id="total"></div>
+			<button type="button" onclick="checkout()"  ><a href="hoadon.html" style="color:#f2f2f2">Thanh toán</a></button>
+		</div>
+		
+   <script>                   
+                        // Khởi tạo giỏ hàng rỗng và tổng giá trị đơn hàng là 0
+let cart = [];
+let total = 0;
+
+// Hàm thêm sản phẩm vào giỏ hàng
+function addToCart(name, price) {
+	// Tìm sản phẩm trong giỏ hàng
+	let item = cart.find(item => item.name === name);
+
+	// Nếu sản phẩm đã có trong giỏ hàng, tăng số lượng sản phẩm lên 1
+	if (item) {
+		item.quantity++;
+	} else {
+		// Nếu sản phẩm chưa có trong giỏ hàng, thêm sản phẩm vào giỏ hàng với số lượng là 1
+		cart.push({ name: name, price: price, quantity: 1 });
+	}
+
+	// Cập nhật giỏ hàng và tổng giá trị đơn hàng
+	updateCart();
+	updateTotal();
+}
+
+// Hàm cập nhật giỏ hàng
+function updateCart() {
+	// Lấy phần tử HTML để hiển thị giỏ hàng
+	let cartItems = document.getElementById("cart-items");
+
+	// Xóa hết các sản phẩm trong giỏ hàng hiện tại
+	while (cartItems.firstChild) {
+		cartItems.removeChild(cartItems.firstChild);
+	}
+
+	// Thêm các sản phẩm trong giỏ hàng mới vào phần tử HTML
+	cart.forEach(item => {
+		let row = document.createElement("tr");
+		let name = document.createElement("td");
+		let price = document.createElement("td");
+		let quantity = document.createElement("td");
+		let total = document.createElement("td");
+		let remove = document.createElement("td");
+		let removeButton = document.createElement("button");
+
+		name.innerText = item.name;
+		price.innerText = item.price.toLocaleString() + " đ";
+		quantity.innerText = item.quantity;
+		total.innerText = (item.price * item.quantity).toLocaleString() + " đ";
+		removeButton.innerText = "Xóa";
+		removeButton.onclick = () => removeFromCart(item);
+
+		row.appendChild(name);
+		row.appendChild(price);
+		row.appendChild(quantity);
+		row.appendChild(total);
+		remove.appendChild(removeButton);
+		row.appendChild(remove);
+		cartItems.appendChild(row);
+	});
+}// Hàm tính tổng giá trị đơn hàng
+function updateTotal() {
+	// Tính tổng giá trị đơn hàng từ giỏ hàng
+	let subTotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
+	// Lấy phần tử HTML để hiển thị tổng giá trị đơn hàng
+	let totalElement = document.getElementById("total");
+totalElement.innerText = "Tổng tiền: " + subTotal.toLocaleString() + " đ";
+	// Kiểm tra xem đã áp dụng mã giảm giá chưa
+	if (voucherApplied) {
+		// Áp dụng mã giảm giá (giảm giá 10%)
+		total = subTotal * 0.8;
+	} else {
+		// Không áp dụng mã giảm giá
+		total = subTotal;
+	}
+
+	// Cập nhật tổng giá trị đơn hàng trên phần tử HTML
+	totalElement.innerText = "Tổng tiền: " + total.toLocaleString() + " đ";
+}
+
+// Hàm xóa sản phẩm khỏi giỏ hàng
+function removeFromCart(item) {
+	// Xóa sản phẩm khỏi giỏ hàng
+	cart = cart.filter(i => i !== item);
+
+	// Cập nhật giỏ hàng và tổng giá trị đơn hàng
+	updateCart();
+	updateTotal();
+}
+
+// Hàm áp dụng mã giảm giá
+function applyVoucher() {
+	// Lấy giá trị của mã giảm giá từ phần tử HTML
+	let voucher = document.getElementById("voucher").value;
+
+	// Kiểm tra mã giảm giá có hợp lệ không
+	if (voucher === "ABC123") {
+		// Đánh dấu rằng mã giảm giá đã được áp dụng
+		voucherApplied = true;
+
+		// Cập nhật tổng giá trị đơn hàng
+		updateTotal();
+	} else {
+		// Nếu không hợp lệ, hiển thị thông báo lỗi
+		alert("Mã giảm giá không hợp lệ");
+	}
+}
+
+
+
+// Hàm xuất hóa đơn
+function checkout() {
+	// Lấy phần tử HTML của trang hóa đơn
+	let invoice = document.getElementById("invoice");
+
+	// Xóa hết các sản phẩm trong hóa đơn hiện tại
+	while (invoice.firstChild) {
+		invoice.removeChild(invoice.firstChild);
+	}
+
+	// Thêm các sản phẩm trong giỏ hàng vào hóa đơn
+	cart.forEach(item => {
+		let row = document.createElement("tr");
+		let name = document.createElement("td");
+		let price = document.createElement("td");
+		let quantity = document.createElement("td");
+		let total = document.createElement("td");
+
+		name.innerText = item.name;
+		price.innerText = item.price.toLocaleString() + " đ";
+		quantity.innerText = item.quantity;
+		total.innerText = (item.price * item.quantity).toLocaleString() + " đ";
+
+		row.appendChild(name);
+		row.appendChild(price);
+		row.appendChild(quantity);
+		row.appendChild(total);
+		invoice.appendChild(row);
+	});
+
+	// Thêm tổng giá trị đơn hàng vào hóa đơn
+	let row = document.createElement("tr");
+	let totalLabel = document.createElement("td");
+	let totalValue = document.createElement("td");
+
+	totalLabel.innerText = "Tổng tiền:";
+	totalValue.innerText = total.toLocaleString() + " đ";
+
+	row.appendChild(totalLabel);
+	row.appendChild(totalValue);
+	invoice.appendChild(row);
+
+	// Hiển thị hóa đơn
+	document.getElementById("cart").style.display = "none";
+	document.getElementById("checkout").style.display = "none";
+	document.getElementById("invoice-section").style.display = "block";
+}
+// Hàm thanh toán đơn hàng
+function checkout() {
+	alert("Đặt hàng thành công");
+	// Lấy thông tin thanh toán từ người dùng
+	let name = document.getElementById("name").value;
+	let email = document.getElementById("email").value;
+	let address = document.getElementById("address").value;
+	let city = document.getElementById("city").value;
+	let state = document.getElementById("state").value;
+	let zip = document.getElementById("zip").value;
+
+	// Kiểm tra thông tin thanh toán có hợp lệ không
+	if (!name || !email || !address || !city || !state || !zip) {
+		alert("Vui lòng nhập đầy đủ thông tin thanh toán");
+		return;
+	}
+
+	// Chuẩn bị thông tin đơn hàng để gửi đến cổng thanh toán
+	let order = {
+		items: cart.map(item => ({
+			name: item.name,
+			description: "",
+			quantity: item.quantity,
+			price: item.price,
+			tax: 0,
+			shipping: 0
+		})),
+		currency: "VND",
+		subtotal: total,
+		total: total,
+		customer: {
+			name: name,
+			email: email,
+			address: {
+				line1: address,
+				city: city,
+				state: state,
+				postal_code: zip,
+				country_code: "VN"
+			}
+		}
+	};
+
+	// Gửi thông tin đơn hàng đến cổng thanh toán PayPal để xử lý thanh toán
+	paypal.Buttons({
+		createOrder: function(data, actions) {
+			return actions.order.create({
+				purchase_units: [order]
+			});
+		},
+		onApprove: function(data, actions) {
+			return actions.order.capture().then(function(details) {
+				// Sau khi thanh toán thành công, hiển thị thông báo thành công và xuất hóa đơn
+				alert("Thanh toán thành công");
+				exportInvoice(details);
+			});
+		},
+		onError: function(err) {
+			// Nếu có lỗi xảy ra trong quá trình thanh toán, hiển thị thông báo lỗi
+			alert("Thanh toán thất bại: " + err);
+		}
+	}).render("#paypal-button-container");
+}
+
+// Hàm xuất hóa đơn
+function exportInvoice(details) {
+	// Lấy phần tử HTML của trang hóa đơn
+	let invoice = document.getElementById("invoice");
+
+	// Xóa hết các sản phẩm trong hóa đơn hiện tại
+	while (invoice.firstChild) {
+		invoice.removeChild(invoice.firstChild);
+	}
+
+	// Thêm các sản phẩm trong giỏ hàng vào hóa đơn
+	cart.forEach(item => {
+		let row = document.createElement("tr");
+		let name = document.createElement("td");
+		let price = document.createElement("td");
+		let quantity = document.createElement("td");
+		let total = document.createElement("td");
+
+		name.innerText = item.name;
+		price.innerText = item.price.toLocaleString() + " đ";
+		quantity.innerText = item.quantity;
+		total.innerText = (item.price * item.quantity).toLocaleString() + " đ";
+
+		row.appendChild(name);
+		row.appendChild(price);
+		row.appendChild(quantity);
+		row.appendChild(total);
+		invoice.appendChild(row);
+	});
+
+	// Thêm tổng giá trị đơn hàng vào hóa đơn
+	let row = document.createElement("tr");
+	let totalLabel = document.createElement("td");
+	let totalValue = document.createElement("td");
+
+	totalLabel.innerText = "Tổng tiền:";
+	totalValue.innerText = total.toLocaleString() + " đ";
+
+	row.appendChild(totalLabel);
+	row.appendChild(totalValue);
+	invoice.appendChild(row);
+
+	// Thêm thông tin khách hàng vào hóa đơn
+	row = document.createElement("tr");
+	let customerLabel = document.createElement("td");
+	let customerValue = document.createElement("td");
+
+	customerLabel.innerText = "Thông tin khách hàng:";
+	customerValue.innerText = details.payer.name.giữa + ", " + details.payer.email_address + ", " + details.purchase_units[0].shipping.address.address_line_1 + ", " + details.purchase_units[0].shipping.address.admin_area_2 + ", " + details.purchase_units[0].shipping.address.admin_area_1 + ", " + details.purchase_units[0].shipping.address.postal_code + ", " + details.purchase_units[0].shipping.address.country_code;
+
+	row.appendChild(customerLabel);
+	row.appendChild(customerValue);
+	invoice.appendChild(row);
+
+	// Hiển thị hóa đơn
+	let invoiceSection = document.getElementById("invoice-section");
+	invoiceSection.style.display = "block";
+}
+</script>
